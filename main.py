@@ -62,7 +62,7 @@ async def send_welcome(message: types.Message):
         )
         chat_gpt_response = response
     except Exception as e:
-        print(f"{g4f.Provider.Bing.__name__}:", e)
+        logging.error(f"{g4f.Provider.Bing.__name__}:", e)
         chat_gpt_response = "Извините, произошла ошибка."
 
     conversation_history[user_id].append({"role": "assistant", "content": chat_gpt_response})
@@ -74,17 +74,17 @@ async def send_welcome(message: types.Message):
 def fix_links(target_string):
     link_dict = dict(re.findall(r"\[(.+?)\]: (.+?(?= \"\"))", target_string))
     result = re.sub(r"\[(.+?)\]: (.+?(\"\"))", '', target_string, flags=re.M).lstrip()
-
     links = re.findall(r"\[\^(.+?)\^\]\[.+?\]", result)
     for link in links:
-        inline_link =  f'[[{link}]]({link_dict[link]})'
+        inline_link =  f' [[{link}]]({link_dict[link]})'
         result = re.sub(r"\[\^({0})\^\]\[{0}\]".format(link), inline_link, result, flags=re.M)
 
-    links_block = '\nСсылки:'
-    for i in link_dict:
-        links_block += f'\n{i}) {link_dict[i]}'
+    if link_dict:
+        links_block = '\nСсылки:'
+        for i in link_dict:
+            links_block += f'\n{i}) {link_dict[i]}'
 
-    result += links_block
+        result += links_block
 
     return result
 
